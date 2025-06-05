@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BookShare - Plataforma de Libros Digitales</title>
+    <title>LibrariumHub - Plataforma de Libros Digitales</title>
     <style>
         * {
             margin: 0;
@@ -69,6 +69,11 @@
             background: rgba(255, 255, 255, 0.8);
             color: #4a5568;
             border: 2px solid #667eea;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ff6b6b, #ff4757);
+            color: white;
         }
 
         .btn:hover {
@@ -195,6 +200,13 @@
             justify-content: center;
             font-size: 3rem;
             margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .book-title {
@@ -266,6 +278,148 @@
             color: #666;
         }
 
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: white;
+            margin-right: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #cce7ff;
+            color: #004085;
+            border: 1px solid #abd5ff;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 15px;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .book-details {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .rating-stars {
+            color: #ffa500;
+            margin-bottom: 10px;
+        }
+
+        .reviews-section {
+            margin-top: 30px;
+        }
+
+        .review-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-section select,
+        .filter-section input {
+            padding: 8px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        .library-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .library-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .library-cover {
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
@@ -280,6 +434,15 @@
                 flex-wrap: wrap;
                 justify-content: center;
             }
+
+            .book-details {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
         }
     </style>
 </head>
@@ -287,15 +450,25 @@
     <div class="container">
         <header class="header">
             <div class="logo">📚 BookShare</div>
-            <nav class="nav-buttons">
+            <div id="authButtons" class="nav-buttons">
                 <button class="btn btn-secondary" onclick="showSection('home')">Inicio</button>
                 <button class="btn btn-secondary" onclick="showSection('explore')">Explorar</button>
                 <button class="btn btn-secondary" onclick="showSection('login')">Iniciar Sesión</button>
                 <button class="btn btn-primary" onclick="showSection('register')">Registrarse</button>
-            </nav>
+            </div>
+            <div id="userButtons" class="nav-buttons" style="display: none;">
+                <span id="userInfo" class="user-info"></span>
+                <button class="btn btn-secondary" onclick="showSection('home')">Inicio</button>
+                <button class="btn btn-secondary" onclick="showSection('explore')">Explorar</button>
+                <button id="dashboardBtn" class="btn btn-secondary" onclick="showDashboard()">Dashboard</button>
+                <button id="libraryBtn" class="btn btn-secondary" onclick="showSection('library')" style="display: none;">Mi Biblioteca</button>
+                <button class="btn btn-danger" onclick="logout()">Cerrar Sesión</button>
+            </div>
         </header>
 
         <main class="main-content">
+            <div id="alerts"></div>
+
             <!-- Sección de Inicio -->
             <div id="home" class="section active">
                 <div class="welcome-section">
@@ -313,7 +486,7 @@
                         </div>
                         <div class="feature-card">
                             <h3>💰 Pagos Seguros</h3>
-                            <p>Sistema de pagos integrado con reparto automático de ingresos</p>
+                            <p>Sistema de pagos integrado con reparto automático de ingresos (70% autor / 30% plataforma)</p>
                         </div>
                     </div>
                 </div>
@@ -325,11 +498,40 @@
                 
                 <div class="search-bar">
                     <span class="search-icon">🔍</span>
-                    <input type="text" placeholder="Buscar libros, autores, géneros..." oninput="filterBooks(this.value)">
+                    <input type="text" id="searchInput" placeholder="Buscar libros, autores, géneros..." oninput="filterBooks()">
+                </div>
+
+                <div class="filter-section">
+                    <select id="genreFilter" onchange="filterBooks()">
+                        <option value="">Todos los géneros</option>
+                        <option value="fiction">Ficción</option>
+                        <option value="non-fiction">No Ficción</option>
+                        <option value="romance">Romance</option>
+                        <option value="mystery">Misterio</option>
+                        <option value="sci-fi">Ciencia Ficción</option>
+                        <option value="fantasy">Fantasía</option>
+                    </select>
+                    <select id="priceFilter" onchange="filterBooks()">
+                        <option value="">Todos los precios</option>
+                        <option value="0-10">$0 - $10</option>
+                        <option value="10-20">$10 - $20</option>
+                        <option value="20-50">$20 - $50</option>
+                        <option value="50+">$50+</option>
+                    </select>
+                    <select id="sortFilter" onchange="filterBooks()">
+                        <option value="title">Ordenar por título</option>
+                        <option value="price-low">Precio: menor a mayor</option>
+                        <option value="price-high">Precio: mayor a menor</option>
+                        <option value="rating">Mejor valorados</option>
+                        <option value="newest">Más recientes</option>
+                    </select>
                 </div>
 
                 <div class="books-grid" id="booksGrid">
-                    <!-- Los libros se generarán dinámicamente -->
+                    <div style="text-align: center; padding: 40px; color: #666; grid-column: 1 / -1;">
+                        <h3>¡Sé el primero en publicar!</h3>
+                        <p>Aún no hay libros publicados. Regístrate como autor y publica el primer libro de la plataforma.</p>
+                    </div>
                 </div>
             </div>
 
@@ -340,11 +542,11 @@
                     <form onsubmit="handleLogin(event)">
                         <div class="form-group">
                             <label>Email:</label>
-                            <input type="email" required placeholder="tu@email.com">
+                            <input type="email" name="email" required placeholder="tu@email.com">
                         </div>
                         <div class="form-group">
                             <label>Contraseña:</label>
-                            <input type="password" required placeholder="Tu contraseña">
+                            <input type="password" name="password" required placeholder="Tu contraseña">
                         </div>
                         <button type="submit" class="btn btn-primary" style="width: 100%;">Iniciar Sesión</button>
                     </form>
@@ -358,7 +560,7 @@
                     <form onsubmit="handleRegister(event)">
                         <div class="form-group">
                             <label>Tipo de Usuario:</label>
-                            <select required onchange="toggleAuthorFields(this.value)">
+                            <select name="userType" required onchange="toggleAuthorFields(this.value)">
                                 <option value="">Selecciona...</option>
                                 <option value="reader">Lector</option>
                                 <option value="author">Autor</option>
@@ -366,24 +568,24 @@
                         </div>
                         <div class="form-group">
                             <label>Nombre Completo:</label>
-                            <input type="text" required placeholder="Tu nombre completo">
+                            <input type="text" name="fullName" required placeholder="Tu nombre completo">
                         </div>
                         <div class="form-group">
                             <label>Email:</label>
-                            <input type="email" required placeholder="tu@email.com">
+                            <input type="email" name="email" required placeholder="tu@email.com">
                         </div>
                         <div class="form-group">
                             <label>Contraseña:</label>
-                            <input type="password" required placeholder="Contraseña segura">
+                            <input type="password" name="password" required placeholder="Contraseña segura" minlength="8">
                         </div>
                         <div id="authorFields" style="display: none;">
                             <div class="form-group">
                                 <label>Biografía:</label>
-                                <textarea placeholder="Cuéntanos sobre ti como autor..."></textarea>
+                                <textarea name="bio" placeholder="Cuéntanos sobre ti como autor..."></textarea>
                             </div>
                             <div class="form-group">
                                 <label>Géneros que escribes:</label>
-                                <input type="text" placeholder="Ej: Ficción, Romance, Ciencia Ficción">
+                                <input type="text" name="genres" placeholder="Ej: Ficción, Romance, Ciencia Ficción">
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary" style="width: 100%;">Crear Cuenta</button>
@@ -391,32 +593,61 @@
                 </div>
             </div>
 
-            <!-- Dashboard del Autor (se muestra después del login como autor) -->
+            <!-- Dashboard del Autor -->
             <div id="authorDashboard" class="section">
                 <h2>Dashboard del Autor</h2>
                 
                 <div class="dashboard-stats">
                     <div class="stat-card">
-                        <div class="stat-number">12</div>
+                        <div class="stat-number" id="publishedBooks">0</div>
                         <div class="stat-label">Libros Publicados</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number">$2,450</div>
+                        <div class="stat-number" id="monthlyEarnings">$0</div>
                         <div class="stat-label">Ingresos Este Mes</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number">156</div>
+                        <div class="stat-number" id="totalSales">0</div>
                         <div class="stat-label">Ventas Totales</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number">4.8</div>
+                        <div class="stat-number" id="avgRating">-</div>
                         <div class="stat-label">Calificación Promedio</div>
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 20px; margin-bottom: 30px;">
+                <div style="display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap;">
                     <button class="btn btn-primary" onclick="showSection('publishBook')">📚 Publicar Nuevo Libro</button>
                     <button class="btn btn-secondary" onclick="showSection('myBooks')">📖 Mis Libros</button>
+                </div>
+
+                <div id="myBooks" style="display: none;">
+                    <h3>Mis Libros Publicados</h3>
+                    <div id="authorBooksGrid" class="books-grid"></div>
+                </div>
+            </div>
+
+            <!-- Dashboard del Lector -->
+            <div id="readerDashboard" class="section">
+                <h2>Mi Perfil</h2>
+                
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="booksOwned">0</div>
+                        <div class="stat-label">Libros en Biblioteca</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalSpent">$0</div>
+                        <div class="stat-label">Total Gastado</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="reviewsWritten">0</div>
+                        <div class="stat-label">Reseñas Escritas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="favoriteGenre">-</div>
+                        <div class="stat-label">Género Favorito</div>
+                    </div>
                 </div>
             </div>
 
@@ -427,15 +658,15 @@
                     <form onsubmit="handlePublishBook(event)">
                         <div class="form-group">
                             <label>Título del Libro:</label>
-                            <input type="text" required placeholder="Título de tu libro">
+                            <input type="text" name="title" required placeholder="Título de tu libro">
                         </div>
                         <div class="form-group">
                             <label>Descripción:</label>
-                            <textarea required placeholder="Describe tu libro..." rows="4"></textarea>
+                            <textarea name="description" required placeholder="Describe tu libro..." rows="4"></textarea>
                         </div>
                         <div class="form-group">
                             <label>Género:</label>
-                            <select required>
+                            <select name="genre" required>
                                 <option value="">Selecciona un género...</option>
                                 <option value="fiction">Ficción</option>
                                 <option value="non-fiction">No Ficción</option>
@@ -447,86 +678,76 @@
                         </div>
                         <div class="form-group">
                             <label>Precio (USD):</label>
-                            <input type="number" required min="0.99" step="0.01" placeholder="9.99">
+                            <input type="number" name="price" required min="0.99" step="0.01" placeholder="9.99">
                         </div>
                         <div class="form-group">
                             <label>Portada del Libro:</label>
-                            <input type="file" accept="image/*">
+                            <input type="file" name="cover" accept="image/*">
                             <small style="color: #666;">Formato recomendado: JPG o PNG, mínimo 600x800px</small>
                         </div>
                         <div class="form-group">
                             <label>Archivo del Libro:</label>
-                            <input type="file" accept=".pdf,.epub" required>
+                            <input type="file" name="bookFile" accept=".pdf,.epub" required>
                             <small style="color: #666;">Formatos aceptados: PDF, EPUB</small>
                         </div>
                         <button type="submit" class="btn btn-primary" style="width: 100%;">Publicar Libro</button>
                     </form>
                 </div>
             </div>
+
+            <!-- Biblioteca Personal -->
+            <div id="library" class="section">
+                <h2>Mi Biblioteca</h2>
+                <div class="library-grid" id="libraryGrid">
+                    <div style="text-align: center; padding: 40px; color: #666; grid-column: 1 / -1;">
+                        <h3>Tu biblioteca está vacía</h3>
+                        <p>Los libros que compres aparecerán aquí para que puedas leerlos cuando quieras.</p>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
-    <script>
-        // Datos de ejemplo
-        const sampleBooks = [
-            {
-                id: 1,
-                title: "El Jardín Secreto Digital",
-                author: "Ana García",
-                price: 12.99,
-                genre: "fiction",
-                rating: 4.5,
-                cover: "🌸"
-            },
-            {
-                id: 2,
-                title: "Código y Algoritmos",
-                author: "Carlos López",
-                price: 19.99,
-                genre: "non-fiction",
-                rating: 4.8,
-                cover: "💻"
-            },
-            {
-                id: 3,
-                title: "Amor en Tiempos de IA",
-                author: "María Rodríguez",
-                price: 9.99,
-                genre: "romance",
-                rating: 4.2,
-                cover: "💕"
-            },
-            {
-                id: 4,
-                title: "El Misterio del Servidor",
-                author: "José Martín",
-                price: 14.99,
-                genre: "mystery",
-                rating: 4.6,
-                cover: "🔍"
-            },
-            {
-                id: 5,
-                title: "Galaxias Virtuales",
-                author: "Elena Santos",
-                price: 16.99,
-                genre: "sci-fi",
-                rating: 4.7,
-                cover: "🚀"
-            },
-            {
-                id: 6,
-                title: "El Reino de los Datos",
-                author: "Pedro Jiménez",
-                price: 11.99,
-                genre: "fantasy",
-                rating: 4.3,
-                cover: "🏰"
-            }
-        ];
+    <!-- Modal para detalles del libro -->
+    <div id="bookModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="bookDetails"></div>
+        </div>
+    </div>
 
+    <!-- Modal para proceso de pago -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePaymentModal()">&times;</span>
+            <div id="paymentDetails"></div>
+        </div>
+    </div>
+
+    <script>
+        // Sistema de datos en memoria
+        let users = [];
+        let books = [];
+        let purchases = [];
+        let reviews = [];
         let currentUser = null;
-        let allBooks = [...sampleBooks];
+
+        // Utilidades
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        function showAlert(message, type = 'info') {
+            const alertsContainer = document.getElementById('alerts');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alertsContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
 
         // Navegación entre secciones
         function showSection(sectionId) {
@@ -536,56 +757,102 @@
             document.getElementById(sectionId).classList.add('active');
             
             if (sectionId === 'explore') {
-                displayBooks(allBooks);
+                displayBooks();
+            } else if (sectionId === 'library') {
+                displayLibrary();
             }
         }
 
-        // Mostrar libros
-        function displayBooks(books) {
-            const booksGrid = document.getElementById('booksGrid');
-            if (!booksGrid) return;
-            
-            booksGrid.innerHTML = books.map(book => `
-                <div class="book-card">
-                    <div class="book-cover">${book.cover}</div>
-                    <div class="book-title">${book.title}</div>
-                    <div class="book-author">por ${book.author}</div>
-                    <div class="book-price">$${book.price}</div>
-                    <div style="margin-bottom: 15px; color: #ffa500;">
-                        ${'⭐'.repeat(Math.floor(book.rating))} (${book.rating})
-                    </div>
-                    <button class="btn btn-primary" style="width: 100%;" onclick="buyBook(${book.id})">
-                        Comprar Ahora
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        // Filtrar libros
-        function filterBooks(searchTerm) {
-            const filtered = allBooks.filter(book => 
-                book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                book.genre.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-            displayBooks(filtered);
+        // Mostrar dashboard según tipo de usuario
+        function showDashboard() {
+            if (currentUser) {
+                if (currentUser.type === 'author') {
+                    showSection('authorDashboard');
+                    updateAuthorStats();
+                    displayAuthorBooks();
+                } else {
+                    showSection('readerDashboard');
+                    updateReaderStats();
+                }
+            }
         }
 
         // Manejar registro
         function handleRegister(event) {
             event.preventDefault();
             const formData = new FormData(event.target);
-            alert('¡Cuenta creada exitosamente! En la versión completa, se enviaría un email de confirmación.');
+            
+            const userData = {
+                id: generateId(),
+                type: formData.get('userType'),
+                fullName: formData.get('fullName'),
+                email: formData.get('email'),
+                password: formData.get('password'),
+                createdAt: new Date(),
+                bio: formData.get('bio') || '',
+                genres: formData.get('genres') || ''
+            };
+
+            // Verificar si el email ya existe
+            if (users.some(user => user.email === userData.email)) {
+                showAlert('Este email ya está registrado', 'error');
+                return;
+            }
+
+            users.push(userData);
+            showAlert('¡Cuenta creada exitosamente!', 'success');
+            event.target.reset();
             showSection('login');
         }
 
         // Manejar login
         function handleLogin(event) {
             event.preventDefault();
-            // Simulamos login exitoso
-            currentUser = { type: 'author', name: 'Usuario Demo' };
-            alert('¡Inicio de sesión exitoso!');
-            showSection('authorDashboard');
+            const formData = new FormData(event.target);
+            const email = formData.get('email');
+            const password = formData.get('password');
+
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                updateUI();
+                showAlert(`¡Bienvenido/a ${user.fullName}!`, 'success');
+                showDashboard();
+            } else {
+                showAlert('Email o contraseña incorrectos', 'error');
+            }
+        }
+
+        // Cerrar sesión
+        function logout() {
+            currentUser = null;
+            updateUI();
+            showAlert('Sesión cerrada', 'info');
+            showSection('home');
+        }
+
+        // Actualizar interfaz según estado de autenticación
+        function updateUI() {
+            const authButtons = document.getElementById('authButtons');
+            const userButtons = document.getElementById('userButtons');
+            const libraryBtn = document.getElementById('libraryBtn');
+            const userInfo = document.getElementById('userInfo');
+
+            if (currentUser) {
+                authButtons.style.display = 'none';
+                userButtons.style.display = 'flex';
+                userInfo.textContent = `${currentUser.fullName} (${currentUser.type === 'author' ? 'Autor' : 'Lector'})`;
+                
+                if (currentUser.type === 'reader') {
+                    libraryBtn.style.display = 'inline-block';
+                } else {
+                    libraryBtn.style.display = 'none';
+                }
+            } else {
+                authButtons.style.display = 'flex';
+                userButtons.style.display = 'none';
+            }
         }
 
         // Mostrar campos específicos para autores
@@ -597,21 +864,622 @@
         // Manejar publicación de libro
         function handlePublishBook(event) {
             event.preventDefault();
-            alert('¡Libro publicado exitosamente! En la versión completa, se procesaría el archivo y se añadiría a la tienda.');
+            
+            if (!currentUser || currentUser.type !== 'author') {
+                showAlert('Solo los autores pueden publicar libros', 'error');
+                return;
+            }
+
+            const formData = new FormData(event.target);
+            const coverFile = formData.get('cover');
+            const bookFile = formData.get('bookFile');
+
+            const bookData = {
+                id: generateId(),
+                title: formData.get('title'),
+                description: formData.get('description'),
+                genre: formData.get('genre'),
+                price: parseFloat(formData.get('price')),
+                authorId: currentUser.id,
+                authorName: currentUser.fullName,
+                publishedAt: new Date(),
+                ratings: [],
+                sales: 0,
+                cover: coverFile ? URL.createObjectURL(coverFile) : null,
+                bookFile: bookFile ? URL.createObjectURL(bookFile) : null,
+                fileName: bookFile ? bookFile.name : null
+            };
+
+            books.push(bookData);
+            showAlert('¡Libro publicado exitosamente!', 'success');
+            event.target.reset();
             showSection('authorDashboard');
+            updateAuthorStats();
+            displayAuthorBooks();
+        }
+
+        // Mostrar libros
+        function displayBooks() {
+            const booksGrid = document.getElementById('booksGrid');
+            if (!booksGrid) return;
+            
+            let filteredBooks = filterBooksList();
+            
+            if (filteredBooks.length === 0) {
+                booksGrid.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666; grid-column: 1 / -1;">
+                        <h3>No se encontraron libros</h3>
+                        <p>Intenta ajustar los filtros de búsqueda o sé el primero en publicar un libro.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            booksGrid.innerHTML = filteredBooks.map(book => {
+                const avgRating = book.ratings.length > 0 
+                    ? (book.ratings.reduce((sum, r) => sum + r.rating, 0) / book.ratings.length).toFixed(1)
+                    : 'Sin calificar';
+                
+                return `
+                    <div class="book-card">
+                        <div class="book-cover" onclick="showBookDetails('${book.id}')">
+                            ${book.cover ? `<img src="${book.cover}" alt="${book.title}">` : '📚'}
+                        </div>
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-author">por ${book.authorName}</div>
+                        <div class="book-price">${book.price.toFixed(2)}</div>
+                        <div class="rating-stars" style="margin-bottom: 15px;">
+                            ${book.ratings.length > 0 ? '⭐'.repeat(Math.floor(parseFloat(avgRating))) + ` (${avgRating})` : 'Sin reseñas'}
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-secondary" onclick="showBookDetails('${book.id}')" style="flex: 1;">
+                                Ver Detalles
+                            </button>
+                            <button class="btn btn-primary" onclick="buyBook('${book.id}')" style="flex: 1;">
+                                Comprar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Filtrar libros
+        function filterBooksList() {
+            const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+            const genreFilter = document.getElementById('genreFilter')?.value || '';
+            const priceFilter = document.getElementById('priceFilter')?.value || '';
+            const sortFilter = document.getElementById('sortFilter')?.value || 'title';
+
+            let filtered = books.filter(book => {
+                const matchesSearch = book.title.toLowerCase().includes(searchTerm) ||
+                                    book.authorName.toLowerCase().includes(searchTerm) ||
+                                    book.description.toLowerCase().includes(searchTerm);
+                
+                const matchesGenre = !genreFilter || book.genre === genreFilter;
+                
+                let matchesPrice = true;
+                if (priceFilter) {
+                    const [min, max] = priceFilter.split('-').map(p => p.replace('+', ''));
+                    if (max) {
+                        matchesPrice = book.price >= parseFloat(min) && book.price <= parseFloat(max);
+                    } else {
+                        matchesPrice = book.price >= parseFloat(min);
+                    }
+                }
+                
+                return matchesSearch && matchesGenre && matchesPrice;
+            });
+
+            // Ordenar
+            filtered.sort((a, b) => {
+                switch (sortFilter) {
+                    case 'price-low':
+                        return a.price - b.price;
+                    case 'price-high':
+                        return b.price - a.price;
+                    case 'rating':
+                        const avgA = a.ratings.length > 0 ? a.ratings.reduce((s, r) => s + r.rating, 0) / a.ratings.length : 0;
+                        const avgB = b.ratings.length > 0 ? b.ratings.reduce((s, r) => s + r.rating, 0) / b.ratings.length : 0;
+                        return avgB - avgA;
+                    case 'newest':
+                        return new Date(b.publishedAt) - new Date(a.publishedAt);
+                    default:
+                        return a.title.localeCompare(b.title);
+                }
+            });
+
+            return filtered;
+        }
+
+        function filterBooks() {
+            displayBooks();
+        }
+
+        // Mostrar detalles del libro
+        function showBookDetails(bookId) {
+            const book = books.find(b => b.id === bookId);
+            if (!book) return;
+
+            const avgRating = book.ratings.length > 0 
+                ? (book.ratings.reduce((sum, r) => sum + r.rating, 0) / book.ratings.length).toFixed(1)
+                : 0;
+
+            const bookReviews = reviews.filter(r => r.bookId === bookId);
+            const userHasPurchased = currentUser && purchases.some(p => p.bookId === bookId && p.buyerId === currentUser.id);
+            const userHasReviewed = currentUser && bookReviews.some(r => r.userId === currentUser.id);
+
+            document.getElementById('bookDetails').innerHTML = `
+                <div class="book-details">
+                    <div class="book-cover" style="height: 300px;">
+                        ${book.cover ? `<img src="${book.cover}" alt="${book.title}">` : '📚'}
+                    </div>
+                    <div>
+                        <h2>${book.title}</h2>
+                        <p><strong>Autor:</strong> ${book.authorName}</p>
+                        <p><strong>Género:</strong> ${getGenreName(book.genre)}</p>
+                        <p><strong>Precio:</strong> ${book.price.toFixed(2)}</p>
+                        <div class="rating-stars">
+                            ${avgRating > 0 ? '⭐'.repeat(Math.floor(parseFloat(avgRating))) + ` ${avgRating}/5 (${book.ratings.length} reseñas)` : 'Sin reseñas aún'}
+                        </div>
+                        <p><strong>Ventas:</strong> ${book.sales} copias</p>
+                        <p><strong>Publicado:</strong> ${new Date(book.publishedAt).toLocaleDateString()}</p>
+                        <div style="margin-top: 20px;">
+                            ${!currentUser ? 
+                                '<p style="color: #666;">Inicia sesión para comprar este libro</p>' :
+                                currentUser.id === book.authorId ?
+                                    '<p style="color: #666;">Este es tu libro</p>' :
+                                    userHasPurchased ?
+                                        '<p style="color: #28a745; font-weight: bold;">✓ Ya tienes este libro en tu biblioteca</p>' :
+                                        `<button class="btn btn-primary" onclick="buyBook('${book.id}'); closeModal();">Comprar por ${book.price.toFixed(2)}</button>`
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3>Descripción</h3>
+                    <p>${book.description}</p>
+                </div>
+                
+                ${userHasPurchased && !userHasReviewed ? `
+                    <div style="margin-top: 30px;">
+                        <h3>Deja tu reseña</h3>
+                        <form onsubmit="submitReview(event, '${book.id}')">
+                            <div class="form-group">
+                                <label>Calificación:</label>
+                                <select name="rating" required>
+                                    <option value="">Selecciona...</option>
+                                    <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
+                                    <option value="4">⭐⭐⭐⭐ Muy bueno</option>
+                                    <option value="3">⭐⭐⭐ Bueno</option>
+                                    <option value="2">⭐⭐ Regular</option>
+                                    <option value="1">⭐ Malo</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Comentario:</label>
+                                <textarea name="comment" placeholder="Comparte tu opinión sobre este libro..." rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Publicar Reseña</button>
+                        </form>
+                    </div>
+                ` : ''}
+
+                <div class="reviews-section">
+                    <h3>Reseñas (${bookReviews.length})</h3>
+                    ${bookReviews.length === 0 ? 
+                        '<p style="color: #666;">Aún no hay reseñas para este libro.</p>' :
+                        bookReviews.map(review => {
+                            const reviewer = users.find(u => u.id === review.userId);
+                            return `
+                                <div class="review-card">
+                                    <div class="review-header">
+                                        <strong>${reviewer ? reviewer.fullName : 'Usuario anónimo'}</strong>
+                                        <span>${'⭐'.repeat(review.rating)}</span>
+                                    </div>
+                                    <p>${review.comment}</p>
+                                    <small style="color: #666;">${new Date(review.createdAt).toLocaleDateString()}</small>
+                                </div>
+                            `;
+                        }).join('')
+                    }
+                </div>
+            `;
+
+            document.getElementById('bookModal').style.display = 'block';
+        }
+
+        // Enviar reseña
+        function submitReview(event, bookId) {
+            event.preventDefault();
+            
+            if (!currentUser) {
+                showAlert('Debes iniciar sesión para dejar una reseña', 'error');
+                return;
+            }
+
+            const formData = new FormData(event.target);
+            const rating = parseInt(formData.get('rating'));
+            const comment = formData.get('comment');
+
+            const review = {
+                id: generateId(),
+                bookId: bookId,
+                userId: currentUser.id,
+                rating: rating,
+                comment: comment,
+                createdAt: new Date()
+            };
+
+            reviews.push(review);
+
+            // Actualizar rating del libro
+            const book = books.find(b => b.id === bookId);
+            if (book) {
+                book.ratings.push({ rating: rating, userId: currentUser.id });
+            }
+
+            showAlert('¡Reseña publicada exitosamente!', 'success');
+            closeModal();
+            showBookDetails(bookId); // Recargar detalles
         }
 
         // Comprar libro
         function buyBook(bookId) {
-            const book = allBooks.find(b => b.id === bookId);
-            if (book) {
-                alert(`Redirigiendo al sistema de pago para "${book.title}" - $${book.price}\n\nEn la versión completa, se integraría con Stripe o PayPal para procesar el pago y dividir los ingresos automáticamente.`);
+            if (!currentUser) {
+                showAlert('Debes iniciar sesión para comprar libros', 'error');
+                return;
+            }
+
+            const book = books.find(b => b.id === bookId);
+            if (!book) return;
+
+            if (currentUser.id === book.authorId) {
+                showAlert('No puedes comprar tu propio libro', 'error');
+                return;
+            }
+
+            // Verificar si ya compró el libro
+            if (purchases.some(p => p.bookId === bookId && p.buyerId === currentUser.id)) {
+                showAlert('Ya tienes este libro en tu biblioteca', 'info');
+                return;
+            }
+
+            // Mostrar modal de pago
+            showPaymentModal(book);
+        }
+
+        // Mostrar modal de pago
+        function showPaymentModal(book) {
+            const authorEarnings = (book.price * 0.7).toFixed(2);
+            const platformFee = (book.price * 0.3).toFixed(2);
+
+            document.getElementById('paymentDetails').innerHTML = `
+                <h2>Completar Compra</h2>
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h3>${book.title}</h3>
+                    <p>por ${book.authorName}</p>
+                    <div style="font-size: 2rem; font-weight: bold; color: #667eea; margin: 20px 0;">
+                        ${book.price.toFixed(2)}
+                    </div>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h4>Desglose de pago:</h4>
+                    <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                        <span>Precio del libro:</span>
+                        <span>${book.price.toFixed(2)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin: 10px 0; font-size: 0.9rem; color: #666;">
+                        <span>• Para el autor (70%):</span>
+                        <span>${authorEarnings}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin: 10px 0; font-size: 0.9rem; color: #666;">
+                        <span>• Comisión plataforma (30%):</span>
+                        <span>${platformFee}</span>
+                    </div>
+                </div>
+
+                <form onsubmit="processPayment(event, '${book.id}')">
+                    <h4>Información de Pago</h4>
+                    <div class="form-group">
+                        <label>Método de Pago:</label>
+                        <select required>
+                            <option value="">Selecciona método...</option>
+                            <option value="card">Tarjeta de Crédito/Débito</option>
+                            <option value="paypal">PayPal</option>
+                            <option value="stripe">Stripe</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Número de Tarjeta:</label>
+                        <input type="text" placeholder="1234 5678 9012 3456" required>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>MM/AA:</label>
+                            <input type="text" placeholder="12/25" required>
+                        </div>
+                        <div class="form-group">
+                            <label>CVV:</label>
+                            <input type="text" placeholder="123" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre en la Tarjeta:</label>
+                        <input type="text" placeholder="Tu nombre completo" required>
+                    </div>
+                    
+                    <div style="margin-top: 30px; display: flex; gap: 15px;">
+                        <button type="button" class="btn btn-secondary" onclick="closePaymentModal()" style="flex: 1;">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary" style="flex: 2;">
+                            Pagar ${book.price.toFixed(2)}
+                        </button>
+                    </div>
+                </form>
+            `;
+
+            document.getElementById('paymentModal').style.display = 'block';
+        }
+
+        // Procesar pago
+        function processPayment(event, bookId) {
+            event.preventDefault();
+            
+            const book = books.find(b => b.id === bookId);
+            if (!book) return;
+
+            // Simular procesamiento de pago
+            setTimeout(() => {
+                // Crear registro de compra
+                const purchase = {
+                    id: generateId(),
+                    bookId: bookId,
+                    buyerId: currentUser.id,
+                    price: book.price,
+                    authorId: book.authorId,
+                    authorEarnings: book.price * 0.7,
+                    platformFee: book.price * 0.3,
+                    purchasedAt: new Date()
+                };
+
+                purchases.push(purchase);
+                book.sales++;
+
+                showAlert('¡Compra realizada exitosamente!', 'success');
+                closePaymentModal();
+                
+                // Actualizar estadísticas si el usuario actual es lector
+                if (currentUser.type === 'reader') {
+                    updateReaderStats();
+                }
+            }, 1000);
+        }
+
+        // Mostrar biblioteca personal
+        function displayLibrary() {
+            if (!currentUser || currentUser.type !== 'reader') return;
+
+            const userPurchases = purchases.filter(p => p.buyerId === currentUser.id);
+            const libraryGrid = document.getElementById('libraryGrid');
+
+            if (userPurchases.length === 0) {
+                libraryGrid.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666; grid-column: 1 / -1;">
+                        <h3>Tu biblioteca está vacía</h3>
+                        <p>Los libros que compres aparecerán aquí para que puedas leerlos cuando quieras.</p>
+                        <button class="btn btn-primary" onclick="showSection('explore')" style="margin-top: 20px;">
+                            Explorar Libros
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            libraryGrid.innerHTML = userPurchases.map(purchase => {
+                const book = books.find(b => b.id === purchase.bookId);
+                if (!book) return '';
+
+                return `
+                    <div class="library-card">
+                        <div class="library-cover">
+                            ${book.cover ? `<img src="${book.cover}" alt="${book.title}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">` : '📚'}
+                        </div>
+                        <div style="font-weight: bold; margin-bottom: 5px;">${book.title}</div>
+                        <div style="color: #666; margin-bottom: 15px; font-size: 0.9rem;">por ${book.authorName}</div>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="btn btn-primary" onclick="readBook('${book.id}')" style="flex: 1; font-size: 0.9rem;">
+                                Leer
+                            </button>
+                            <button class="btn btn-secondary" onclick="downloadBook('${book.id}')" style="flex: 1; font-size: 0.9rem;">
+                                Descargar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Leer libro
+        function readBook(bookId) {
+            const book = books.find(b => b.id === bookId);
+            if (!book || !book.bookFile) {
+                showAlert('Archivo no disponible', 'error');
+                return;
+            }
+
+            // En una implementación real, aquí se abriría un visor de PDF/EPUB
+            window.open(book.bookFile, '_blank');
+        }
+
+        // Descargar libro
+        function downloadBook(bookId) {
+            const book = books.find(b => b.id === bookId);
+            if (!book || !book.bookFile) {
+                showAlert('Archivo no disponible para descarga', 'error');
+                return;
+            }
+
+            // Crear enlace de descarga
+            const link = document.createElement('a');
+            link.href = book.bookFile;
+            link.download = book.fileName || `${book.title}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Mostrar libros del autor
+        function displayAuthorBooks() {
+            if (!currentUser || currentUser.type !== 'author') return;
+
+            const authorBooks = books.filter(b => b.authorId === currentUser.id);
+            const gridContainer = document.getElementById('authorBooksGrid');
+
+            if (authorBooks.length === 0) {
+                gridContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666; grid-column: 1 / -1;">
+                        <h3>Aún no has publicado libros</h3>
+                        <p>Publica tu primer libro y comienza a ganar dinero con tus escritos.</p>
+                        <button class="btn btn-primary" onclick="showSection('publishBook')" style="margin-top: 20px;">
+                            Publicar Primer Libro
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            gridContainer.innerHTML = authorBooks.map(book => {
+                const avgRating = book.ratings.length > 0 
+                    ? (book.ratings.reduce((sum, r) => sum + r.rating, 0) / book.ratings.length).toFixed(1)
+                    : 'N/A';
+
+                const totalEarnings = purchases
+                    .filter(p => p.bookId === book.id)
+                    .reduce((sum, p) => sum + p.authorEarnings, 0);
+
+                return `
+                    <div class="book-card">
+                        <div class="book-cover">
+                            ${book.cover ? `<img src="${book.cover}" alt="${book.title}">` : '📚'}
+                        </div>
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-author">Género: ${getGenreName(book.genre)}</div>
+                        <div class="book-price">${book.price.toFixed(2)}</div>
+                        <div style="margin-bottom: 10px;">
+                            <div style="font-size: 0.9rem; color: #666;">
+                                Ventas: ${book.sales} | Rating: ${avgRating}
+                            </div>
+                            <div style="font-size: 0.9rem; color: #28a745; font-weight: bold;">
+                                Ganancias: ${totalEarnings.toFixed(2)}
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary" onclick="showBookDetails('${book.id}')" style="width: 100%;">
+                            Ver Detalles
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Actualizar estadísticas del autor
+        function updateAuthorStats() {
+            if (!currentUser || currentUser.type !== 'author') return;
+
+            const authorBooks = books.filter(b => b.authorId === currentUser.id);
+            const authorPurchases = purchases.filter(p => p.authorId === currentUser.id);
+            
+            const thisMonth = new Date();
+            const monthlyPurchases = authorPurchases.filter(p => {
+                const purchaseDate = new Date(p.purchasedAt);
+                return purchaseDate.getMonth() === thisMonth.getMonth() && 
+                       purchaseDate.getFullYear() === thisMonth.getFullYear();
+            });
+
+            const monthlyEarnings = monthlyPurchases.reduce((sum, p) => sum + p.authorEarnings, 0);
+            const totalSales = authorPurchases.length;
+            
+            let avgRating = 0;
+            if (authorBooks.length > 0) {
+                const allRatings = authorBooks.flatMap(book => book.ratings);
+                if (allRatings.length > 0) {
+                    avgRating = (allRatings.reduce((sum, r) => sum + r.rating, 0) / allRatings.length).toFixed(1);
+                }
+            }
+
+            document.getElementById('publishedBooks').textContent = authorBooks.length;
+            document.getElementById('monthlyEarnings').textContent = `${monthlyEarnings.toFixed(2)}`;
+            document.getElementById('totalSales').textContent = totalSales;
+            document.getElementById('avgRating').textContent = avgRating || '-';
+        }
+
+        // Actualizar estadísticas del lector
+        function updateReaderStats() {
+            if (!currentUser || currentUser.type !== 'reader') return;
+
+            const userPurchases = purchases.filter(p => p.buyerId === currentUser.id);
+            const userReviews = reviews.filter(r => r.userId === currentUser.id);
+            const totalSpent = userPurchases.reduce((sum, p) => sum + p.price, 0);
+            
+            // Calcular género favorito
+            const genreCount = {};
+            userPurchases.forEach(purchase => {
+                const book = books.find(b => b.id === purchase.bookId);
+                if (book) {
+                    genreCount[book.genre] = (genreCount[book.genre] || 0) + 1;
+                }
+            });
+            
+            const favoriteGenre = Object.keys(genreCount).reduce((a, b) => 
+                genreCount[a] > genreCount[b] ? a : b, '') || '-';
+
+            document.getElementById('booksOwned').textContent = userPurchases.length;
+            document.getElementById('totalSpent').textContent = `${totalSpent.toFixed(2)}`;
+            document.getElementById('reviewsWritten').textContent = userReviews.length;
+            document.getElementById('favoriteGenre').textContent = favoriteGenre ? getGenreName(favoriteGenre) : '-';
+        }
+
+        // Utilidad para obtener nombre del género
+        function getGenreName(genre) {
+            const genres = {
+                'fiction': 'Ficción',
+                'non-fiction': 'No Ficción',
+                'romance': 'Romance',
+                'mystery': 'Misterio',
+                'sci-fi': 'Ciencia Ficción',
+                'fantasy': 'Fantasía'
+            };
+            return genres[genre] || genre;
+        }
+
+        // Funciones para modales
+        function closeModal() {
+            document.getElementById('bookModal').style.display = 'none';
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+        }
+
+        // Cerrar modales al hacer clic fuera
+        window.onclick = function(event) {
+            const bookModal = document.getElementById('bookModal');
+            const paymentModal = document.getElementById('paymentModal');
+            
+            if (event.target === bookModal) {
+                closeModal();
+            }
+            if (event.target === paymentModal) {
+                closePaymentModal();
             }
         }
 
         // Inicializar la aplicación
         document.addEventListener('DOMContentLoaded', function() {
-            displayBooks(allBooks);
+            updateUI();
+            displayBooks();
         });
     </script>
 </body>
